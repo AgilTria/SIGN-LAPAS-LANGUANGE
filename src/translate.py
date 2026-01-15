@@ -32,7 +32,7 @@ def translate(word, mode="ngoko"):
     }
 
 
-# TEST MANUAL
-if __name__ == "__main__":
-    for w in ["MAKAN", "MINUM", "KAMU"]:
-        print(w, "→", translate(w, mode="ngoko"))
+# # TEST MANUAL
+# if __name__ == "__main__":
+#     for w in ["MAKAN", "MINUM", "KAMU"]:
+#         print(w, "→", translate(w, mode="ngoko"))

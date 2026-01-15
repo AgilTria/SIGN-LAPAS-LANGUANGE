@@ -4,58 +4,37 @@ from numpy.linalg import norm
 
 TEMPLATE_DIR = "data/templates"
 
-# -------------------------
-# LOAD SEMUA TEMPLATE
-# -------------------------
 def load_templates():
     templates = {}
-
-    for file in os.listdir(TEMPLATE_DIR):
-        if file.endswith(".npy"):
-            word = os.path.splitext(file)[0]
-            path = os.path.join(TEMPLATE_DIR, file)
-            templates[word] = np.load(path)
-
+    for f in os.listdir(TEMPLATE_DIR):
+        if f.endswith(".npy"):
+            templates[f.replace(".npy","")] = np.load(os.path.join(TEMPLATE_DIR, f))
     return templates
 
-
-# -------------------------
-# COSINE SIMILARITY
-# -------------------------
 def cosine_similarity(a, b):
     a = a.flatten()
     b = b.flatten()
-
-    if norm(a) == 0 or norm(b) == 0:
-        return 0.0
-
     return np.dot(a, b) / (norm(a) * norm(b))
 
+def predict(input_pose, templates):
+    scores = {}
 
-# -------------------------
-# PREDIKSI GESTURE
-# -------------------------
-def predict_gesture(input_sequence, templates):
-    best_word = None
-    best_score = -1
+    for word, temp in templates.items():
+        score = cosine_similarity(input_pose, temp)
+        scores[word] = score
 
-    for word, template in templates.items():
-        score = cosine_similarity(input_sequence, template)
+    # Urutkan dari skor tertinggi
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
-        if score > best_score:
-            best_score = score
-            best_word = word
+    best_word, best_score = sorted_scores[0]
 
-    return best_word, best_score
+    # Jika hanya 1 template (aman)
+    if len(sorted_scores) > 1:
+        second_score = sorted_scores[1][1]
+    else:
+        second_score = 0.0
 
+    margin = best_score - second_score
 
-# if __name__ == "__main__":
-#     templates = load_templates()
+    return best_word, best_score, margin
 
-#     # TEST: bandingkan template MAKAN dengan dirinya sendiri
-#     test_input = templates["TIDUR"]
-
-#     word, score = predict_gesture(test_input, templates)
-
-#     print("Prediksi:", word)
-#     print("Score:", score)
